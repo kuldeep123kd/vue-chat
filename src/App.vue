@@ -15,10 +15,10 @@ export default {
 
   },
   mounted() {
-    let login_token = localStorage.getItem('user_login_token');
+    let login_token = sessionStorage.getItem('user_login_token');
     if(login_token) {
       let decoded_login_token = atob(login_token)
-      console.log(decoded_login_token)
+      // console.log(decoded_login_token)
       // this.$router.push('/')
     }
   }

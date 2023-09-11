@@ -67,7 +67,7 @@ export default {
                     });
                 }
                 localStorage.setItem('chat_users_data', JSON.stringify(users_array));
-                localStorage.setItem('user_login_token', login_token);
+                sessionStorage.setItem('user_login_token', login_token);
                 this.$router.push('/')
             }
             

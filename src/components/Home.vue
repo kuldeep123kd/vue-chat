@@ -138,7 +138,7 @@ export default {
                 this.stored_users_data.splice(user_index, 1)
                 localStorage.setItem('chat_users_data', JSON.stringify(this.stored_users_data));
             }
-            localStorage.removeItem('user_login_token');
+            sessionStorage.removeItem('user_login_token');
             this.$router.push('/login')
         },
         submitChat() {
@@ -177,30 +177,46 @@ export default {
             // return filteredData;
             this.selected_user.users_chat = filteredData
             this.$forceUpdate()
-        }
-    },
-    mounted() {
-        let login_token = localStorage.getItem('user_login_token');
-        console.log(login_token)
-        if(login_token == null || login_token == undefined) {
-            this.$router.push('/login')
-        }
-        if(login_token) {
+        },
+        loadChatData() {
             this.stored_users_data = JSON.parse(localStorage.getItem('chat_users_data'))
             if(this.stored_users_data) {
                 this.user_list = JSON.parse(JSON.stringify(this.stored_users_data))
-                // let logged_user_index = this.user_list.findIndex(user => user.user_name == this.logged_user.user_name)
-                // this.user_list.splice(logged_user_index, 1)
             }
             if(this.user_list.length) {
                 this.selected_user = this.user_list[0];
                 this.stored_selected_user = JSON.parse(JSON.stringify(this.user_list[0]));
             }
+        },
+        loadChatDataOnInterval() {
+            this.stored_users_data = JSON.parse(localStorage.getItem('chat_users_data'))
+            if(this.stored_users_data) {
+                this.user_list = JSON.parse(JSON.stringify(this.stored_users_data))
+            }
+            if(this.user_list.length) {
+                let user_index = this.stored_users_data.findIndex(user => user.user_name == this.selected_user.user_name);
+                this.stored_selected_user.users_chat = JSON.parse(JSON.stringify(this.stored_users_data[user_index].users_chat));
+                this.selected_user.users_chat = JSON.parse(JSON.stringify(this.stored_users_data[user_index].users_chat));
+            }
+        }
+    },
+    mounted() {
+        let login_token = sessionStorage.getItem('user_login_token');
+        // console.log(login_token)
+        if(login_token == null || login_token == undefined) {
+            this.$router.push('/login')
+        }
+        if(login_token) {
+            this.loadChatData();
+            this.chatIntervalID = setInterval(()=> {
+                // console.log('Time Interval Check')
+                this.loadChatDataOnInterval();
+            }, 1000);
         }
     },
     computed: {
         logged_user() {
-            let login_token = localStorage.getItem('user_login_token');
+            let login_token = sessionStorage.getItem('user_login_token');
             let decoded_login_token = ''
             if(login_token) {
                 decoded_login_token = atob(login_token)
@@ -209,7 +225,10 @@ export default {
                 user_name: decoded_login_token
             }
         }
-    }
+    },
+    beforeDestroy() {
+        clearInterval(this.chatIntervalID);
+    },
 }
 </script>
 
